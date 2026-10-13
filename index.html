@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KAITO問題 ブロードリスニング分析</title>
+<meta name="description" content="2026年10月の「#KAITO タグ被り騒動」をめぐる964件のネット上の意見を、広聴AI(kouchou-ai)でクラスタリングした公開ブロードリスニング分析。匿名化・両論併記。">
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb; --surface-2:#f3f3ef;
+    --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --accent:#2a78d6;
+    /* camp */
+    --c-vocaloid:#2a78d6; --c-neutral:#1baf7a; --c-takahashi:#eb6834; --c-media:#eda100;
+    /* phase (clash/reconcile/reflare) */
+    --p-clash:#2a78d6; --p-reconcile:#1baf7a; --p-reflare:#eb6834;
+    --good:#006300; --warn:#b9770c;
+    --maxw:880px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+      --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+      --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+      --accent:#3987e5;
+      --c-vocaloid:#3987e5; --c-neutral:#199e70; --c-takahashi:#d95926; --c-media:#c98500;
+      --p-clash:#3987e5; --p-reconcile:#199e70; --p-reflare:#d95926;
+      --good:#0ca30c; --warn:#fab219;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#232321;
+    --ink:#f0efec; --ink-2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --accent:#3987e5;
+    --c-vocaloid:#3987e5; --c-neutral:#199e70; --c-takahashi:#d95926; --c-media:#c98500;
+    --p-clash:#3987e5; --p-reconcile:#199e70; --p-reflare:#d95926;
+    --good:#0ca30c; --warn:#fab219;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    line-height:1.72; font-size:16px; letter-spacing:.01em;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 16px}
+  a{color:var(--accent)}
+  h1,h2,h3{line-height:1.35; letter-spacing:.01em}
+  h2{font-size:1.4rem; margin:2.6em 0 .2em; padding-top:.4em}
+  h2 .n{color:var(--muted); font-weight:700; font-size:.8em; margin-right:.5em}
+  h3{font-size:1.06rem; margin:1.4em 0 .3em}
+  .lede{color:var(--ink-2)}
+  section{border-top:1px solid var(--border)}
+  section:first-of-type{border-top:none}
+  /* header */
+  header{background:
+      radial-gradient(1200px 400px at 80% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
+      var(--surface);
+    border-bottom:1px solid var(--border)}
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding:14px 0; gap:12px}
+  .brand{font-weight:800; font-size:.86rem; letter-spacing:.06em; color:var(--muted)}
+  .toggle{background:var(--surface-2); color:var(--ink-2); border:1px solid var(--border);
+    border-radius:999px; padding:6px 12px; font-size:.8rem; cursor:pointer; font-family:inherit}
+  .toggle:hover{color:var(--ink)}
+  .hero{padding:16px 0 34px}
+  .asof{display:inline-block; font-size:.76rem; font-weight:700; letter-spacing:.04em;
+    color:var(--accent); background:color-mix(in srgb,var(--accent) 12%, transparent);
+    border-radius:999px; padding:3px 11px; margin-bottom:14px}
+  h1{font-size:2.15rem; margin:.1em 0 .25em; letter-spacing:.005em}
+  .sub{font-size:1.06rem; color:var(--ink-2); max-width:42em}
+  /* stat tiles */
+  .tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:26px 0 4px}
+  .tile{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px}
+  .tile .v{font-size:2rem; font-weight:800; letter-spacing:-.01em}
+  .tile .k{font-size:.8rem; color:var(--muted); font-weight:600}
+  /* callout */
+  .note{background:var(--surface-2); border:1px solid var(--border); border-radius:14px;
+    padding:16px 18px; margin:18px 0; font-size:.94rem}
+  .note b{color:var(--ink)}
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  .two .note{margin:0}
+  .is::before{content:"これは"; display:block; color:var(--good); font-weight:800; font-size:.82rem; margin-bottom:4px}
+  .isnot::before{content:"これではない"; display:block; color:var(--warn); font-weight:800; font-size:.82rem; margin-bottom:4px}
+  p{margin:.7em 0}
+  /* legend */
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin:10px 0 6px; font-size:.82rem; color:var(--ink-2)}
+  .legend span{display:inline-flex; align-items:center; gap:6px}
+  .sw{width:12px; height:12px; border-radius:3px; display:inline-block; box-shadow:0 0 0 1px var(--border) inset}
+  /* stacked bar */
+  .bar{display:flex; width:100%; height:30px; border-radius:6px; overflow:hidden; gap:2px; background:transparent}
+  .seg{display:flex; align-items:center; justify-content:center; color:#fff; font-size:.74rem; font-weight:700;
+    min-width:2px; white-space:nowrap; overflow:hidden; text-shadow:0 1px 1px rgba(0,0,0,.28)}
+  .seg.l{color:var(--ink)}
+  /* phase band */
+  .phaseband{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0}
+  .ph{border-radius:12px; padding:12px 14px; color:#fff; position:relative; min-height:88px}
+  .ph .t{font-weight:800; font-size:.95rem}
+  .ph .c{font-size:1.5rem; font-weight:800; line-height:1.1}
+  .ph .d{font-size:.78rem; opacity:.92; line-height:1.4; margin-top:2px}
+  .ph.clash{background:var(--p-clash)} .ph.reconcile{background:var(--p-reconcile)} .ph.reflare{background:var(--p-reflare)}
+  .arrow{color:var(--muted); text-align:center; font-weight:800}
+  /* cluster list */
+  .clusters{display:grid; gap:12px; margin-top:10px}
+  .cl{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 18px}
+  .cl .hd{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .cl .rank{font-size:.78rem; font-weight:800; color:var(--muted)}
+  .cl .lab{font-weight:800; font-size:1.02rem}
+  .cl .sz{margin-left:auto; font-size:.82rem; color:var(--ink-2); font-weight:700; white-space:nowrap}
+  .cl .gist{color:var(--ink-2); font-size:.9rem; margin:.3em 0 .7em}
+  .mini{display:grid; grid-template-columns:52px 1fr; align-items:center; gap:10px; margin:6px 0; font-size:.72rem}
+  .mini .lbl{color:var(--muted); font-weight:700}
+  .reps{margin:.8em 0 0; padding:0; list-style:none; display:grid; gap:6px}
+  .reps li{background:var(--surface-2); border-left:3px solid var(--accent); border-radius:0 8px 8px 0;
+    padding:7px 11px; font-size:.86rem; color:var(--ink-2)}
+  .sizebars{display:grid; gap:7px; margin:8px 0 2px}
+  .sb{display:grid; grid-template-columns:1fr; gap:3px}
+  .sb .row{display:flex; align-items:center; gap:8px; font-size:.78rem}
+  .sb .track{flex:1; height:12px; background:var(--surface-2); border-radius:6px; overflow:hidden}
+  .sb .fill{height:100%; background:var(--accent); border-radius:6px}
+  .sb .nm{width:40%; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .sb .vv{width:46px; text-align:right; color:var(--muted); font-variant-numeric:tabular-nums}
+  /* verdict */
+  .verdict{border:1px solid var(--border); border-left:5px solid var(--warn); background:var(--surface);
+    border-radius:0 14px 14px 0; padding:18px 20px; margin:12px 0}
+  .verdict .tag{display:inline-block; font-size:.78rem; font-weight:800; color:#fff; background:var(--warn);
+    padding:2px 10px; border-radius:999px; margin-bottom:8px}
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:10px}
+  .cols h4{margin:.2em 0 .3em; font-size:.86rem}
+  .cols ul{margin:0; padding-left:1.1em; font-size:.86rem; color:var(--ink-2)}
+  .cols li{margin:.25em 0}
+  .for h4{color:var(--good)} .against h4{color:var(--warn)}
+  /* method */
+  dl.meta{display:grid; grid-template-columns:auto 1fr; gap:4px 16px; font-size:.9rem; margin:.4em 0}
+  dl.meta dt{color:var(--muted); font-weight:700} dl.meta dd{margin:0; color:var(--ink-2)}
+  footer{border-top:1px solid var(--border); margin-top:40px; padding:22px 0 46px; color:var(--muted); font-size:.82rem}
+  footer a{color:var(--muted)}
+  @media (max-width:640px){
+    h1{font-size:1.7rem} .tiles{grid-template-columns:1fr 1fr}
+    .two,.cols{grid-template-columns:1fr} .phaseband{grid-template-columns:1fr}
+    .sb .nm{width:50%}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">KAITO問題 · ブロードリスニング分析</div>
+      <button class="toggle" id="themeBtn" aria-label="テーマ切替">◐ テーマ</button>
+    </div>
+    <div class="hero">
+      <span class="asof" id="asof">観測 as-of 2026-10-13</span>
+      <h1>#KAITO タグ被り騒動の<br>964意見を可視化する</h1>
+      <p class="sub">2026年10月、King&nbsp;&amp;&nbsp;Prince・髙橋海人のソロ名義「KAITO」と、20年続くVOCALOID「KAITO」の <code>#KAITO</code> タグ衝突。公開ウェブ上の投稿・報道・まとめ <b id="nsrc">108</b> ソースから集めた意見を、広聴AI（kouchou-ai）でクラスタリングした独立レポート。</p>
+      <div class="tiles" id="tiles"></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <div class="two" style="margin-top:22px">
+      <div class="note is">公開ウェブ上の投稿・報道・まとめ・Q&amp;A・掲示板・百科・海外翻訳まとめなど複数ソースから集めた意見を、<b>匿名化・要約</b>し、広聴AIで機械的にクラスタリングした「ブロードリスニング」のスナップショット。賛否を<b>両論併記</b>する。</div>
+      <div class="note isnot">代表性のある<b>世論調査ではない</b>（収集源に偏りがある）。特定個人の断定や、誹謗中傷・脅迫の再掲でもない（<b>文面・アカウントIDは不掲載</b>）。確定した事実認定でもない（進行中・二次情報を含む）。</div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">01</span>何が起きたか</h2>
+    <p class="lede">2026-10-03、King&amp;Prince・髙橋海人が本名「海人（かいと）」由来のソロ名義 <b>「KAITO」</b> で音楽活動を開始し、告知に <code>#KAITO</code> を使用。これが2006年発売・20周年のVOCALOID「KAITO」（クリプトン・フューチャー・メディア）が長年使ってきたタグと完全一致した。X や検索で両者の投稿が混在する <b>「検索汚染」</b>（既存タグの結果が別方向の大量投稿で埋もれる状態）が起き、ボカロ側ファンと髙橋・キンプリ側ファンの対立に発展。10-05 にクリプトンが「重複は仕組み上防げないが双方の尊重を」と声明したが、その後も議論は続いた。</p>
+    <p class="lede">収集した意見の立場（camp）分布は次のとおり。いずれの陣営も一枚岩ではない。</p>
+    <div class="legend" id="campLegend"></div>
+    <div class="bar" id="campBar" role="img" aria-label="立場の分布"></div>
+  </section>
+
+  <section>
+    <h2><span class="n">02</span>時系列 — 3つの局面</h2>
+    <p class="lede">炎上は一本調子ではなく、<b>初期衝突 → 一旦の相互理解 → 再炎上</b> と局面が変化した。各意見に付与した局面タグの分布（下）でも、和解の芽（reconcile）が無視できない厚みで存在し、その後に再炎上（reflare）が立ち上がる構造が見える。</p>
+    <div class="phaseband" id="phaseBand"></div>
+    <p class="lede" style="font-size:.9rem;color:var(--ink-2)">※ クラスタ分析では、<b>和解の芽は「クリプトン声明」クラスタに、再炎上は「誹謗中傷・感情対立」クラスタに局在</b>しており、この3局面を意見内容の側からも裏づける。なお「完全な和解」の報道はなく、ここでの reconcile は <i>相互理解の芽</i> を指す。</p>
+  </section>
+
+  <section>
+    <h2><span class="n">03</span>論点の地図 — 8つのクラスタ</h2>
+    <p class="lede">964意見を広聴AIで階層クラスタリングし、最上位を8クラスタに整理した（クラスタ名は代表意見から人手で付与）。論点の重心は「名前そのもの」ではなく <b>タグ/検索の混在（約38%）</b> にあり、次いで <b>命名の是非（約33%）</b>。擁護・楽曲応援は最小クラスタに偏る。</p>
+    <div class="sizebars" id="sizeBars"></div>
+    <div class="legend" id="campLegend2" style="margin-top:18px"></div>
+    <div class="clusters" id="clusters"></div>
+  </section>
+
+  <section>
+    <h2><span class="n">04</span>検証 — 「低評価は海外ファン由来」説</h2>
+    <p class="lede">MV「swim?」のYouTube低評価について、「海外の King&amp;Prince（"Prince"）ファンや BTS ファンの不興が原因では」という仮説を、日英韓＋Reddit の多言語で検証した。</p>
+    <div class="verdict">
+      <span class="tag">結論: 支持する証拠なし（unsupported）</span>
+      <p style="margin:.3em 0">全9角度を通して、低評価が海外の King&amp;Prince / 歌手Prince / BTS ファン由来であることを示す一次・二次の証拠は<b>見つからなかった</b>。報道で一貫して反発の主体とされるのは<b>国内のボカロ KAITO ファン</b>（名義・<code>#KAITO</code> 衝突）＋「低評価でおすすめ除外できる」という国内SNS言説への追随。ただし投票者の地域内訳は原理的に観測不可のため、<b>積極的な否定</b>まではできない。</p>
+      <div class="cols">
+        <div class="for"><h4>補足される事実</h4><ul>
+          <li>曲名「swim?」と BTS『SWIM』の一致は<b>偶然</b>（一致自体は反発の証拠にならない）</li>
+          <li>国内SNSで「低評価でおすすめ除外」言説が拡散</li>
+        </ul></div>
+        <div class="against"><h4>仮説に反する/未確認</h4><ul>
+          <li>ARMY や Prince ファンの反発を報じた資料は日英韓いずれも不在</li>
+          <li>韓国の King&amp;Prince ファンはむしろ<b>好意的</b>（仮説と逆）</li>
+          <li>YouTubeは2021年に公開dislikeを非表示化。「57万」は単一媒体の未検証値</li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">05</span>手法・限界・倫理</h2>
+    <dl class="meta">
+      <dt>収集</dt><dd>2026-10-13 時点。108ソース（報道 / まとめ / Q&amp;A / 掲示板 / note / 百科 / 海外翻訳まとめ 等）から 964意見を匿名化・日本語要約。</dd>
+      <dt>分析</dt><dd>広聴AI（kouchou-ai）analysis-core 0.1.3。ローカル多言語埋め込み（paraphrase-multilingual-mpnet）＋ UMAP ＋ Ward 階層クラスタリング（8/24/72の3層）。外部LLM APIキー不使用。</dd>
+      <dt>ラベル</dt><dd>クラスタ名は各クラスタの代表意見（中心近傍）を読んで人手で付与（LLMによる自動命名は未使用）。</dd>
+      <dt>限界</dt><dd>収集源は偏りを持つ二次情報を含み、実際のSNS母集団の縮図ではない。乱数シード未固定でクラスタ番号は再実行で変動しうる。代表性のある調査ではない。</dd>
+      <dt>倫理</dt><dd>脅迫・殺害予告・誹謗中傷の文面、私人の氏名・アカウントIDは<b>一切掲載しない</b>。公人・公式・権利元の公開済み発信のみ出典とする。</dd>
+    </dl>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>分析ツール: <a href="https://github.com/digitaldemocracy2030/kouchou-ai">広聴AI / kouchou-ai</a>（Digital Democracy 2030）。本レポートは公開ウェブ情報に基づく独立の分析であり、関係各社・個人の見解を代表するものではありません。</p>
+    <p id="genline">観測 as-of 2026-10-13 ／ 匿名化・両論併記・集計のみ公開。</p>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  "use strict";
+  // theme toggle
+  try{
+    var saved = localStorage.getItem("kaito-theme");
+    if(saved) document.documentElement.setAttribute("data-theme", saved);
+  }catch(e){}
+  document.getElementById("themeBtn").addEventListener("click", function(){
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    var next = dark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try{ localStorage.setItem("kaito-theme", next); }catch(e){}
+  });
+
+  var D = window.KAITO_DATA || {};
+  var CAMP = [["vocaloid","ボカロ側","--c-vocaloid"],["neutral","中立","--c-neutral"],["takahashi","髙橋・キンプリ側","--c-takahashi"],["media","媒体","--c-media"]];
+  var PHASE = [["clash","初期衝突 / clash","--p-clash","名義・タグ衝突の発覚と初期の反発・応酬"],
+               ["reconcile","相互理解 / reconcile","--p-reconcile","「KAITOは楽器/製品」と理解し歩み寄る動き"],
+               ["reflare","再炎上 / reflare","--p-reflare","過激化・事務所対応批判・低評価で再び注目"]];
+  var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); };
+  var cv = function(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+
+  // as-of
+  if(D.asof){ var a="観測 as-of "+D.asof; document.getElementById("asof").textContent=a; }
+
+  // tiles
+  var t = D.totals||{};
+  var tiles=[["opinions",(t.opinions||0).toLocaleString(),"収集した意見"],["sources",t.sources,"情報ソース"],["clusters",t.clusters,"主要クラスタ"]];
+  document.getElementById("tiles").innerHTML = tiles.map(function(x){
+    return '<div class="tile"><div class="v">'+x[1]+'</div><div class="k">'+x[2]+'</div></div>';
+  }).join("");
+  if(t.sources) document.getElementById("nsrc").textContent=t.sources;
+
+  // legend builder
+  function legend(el, items){
+    document.getElementById(el).innerHTML = items.map(function(it){
+      return '<span><i class="sw" style="background:var('+it[2]+')"></i>'+esc(it[1])+'</span>';
+    }).join("");
+  }
+  legend("campLegend", CAMP); legend("campLegend2", CAMP);
+
+  // stacked bar (camp overall)
+  function stacked(el, dist, order){
+    var total = order.reduce(function(s,o){return s+(dist[o[0]]||0);},0)||1;
+    document.getElementById(el).innerHTML = order.map(function(o){
+      var v=dist[o[0]]||0, pct=v/total*100;
+      var light = o[0]==="media"||o[0]==="neutral";
+      return '<div class="seg'+(light?" l":"")+'" style="width:'+pct.toFixed(2)+'%;background:var('+o[2]+')" title="'+esc(o[1])+' '+v+'（'+pct.toFixed(0)+'%）">'+(pct>8?esc(o[1].split(" ")[0])+" "+Math.round(pct)+"%":"")+'</div>';
+    }).join("");
+  }
+  stacked("campBar", D.camp||{}, CAMP);
+
+  // phase band
+  document.getElementById("phaseBand").innerHTML = PHASE.map(function(p,i){
+    var v=(D.phase||{})[p[0]]||0;
+    var arrow = i<2 ? '' : '';
+    return '<div class="ph '+p[0]+'"><div class="t">'+esc(p[1])+'</div><div class="c">'+v+'<span style="font-size:.9rem;font-weight:700"> 件</span></div><div class="d">'+esc(p[3])+'</div></div>';
+  }).join("");
+
+  // cluster size bars (single hue = magnitude)
+  var cls = D.clusters||[];
+  var max = cls.reduce(function(m,c){return Math.max(m,c.size);},1);
+  document.getElementById("sizeBars").innerHTML = '<div class="sb">'+cls.map(function(c){
+    return '<div class="row"><span class="nm" title="'+esc(c.label)+'">'+esc(c.label)+'</span>'+
+      '<span class="track"><span class="fill" style="width:'+(c.size/max*100).toFixed(1)+'%"></span></span>'+
+      '<span class="vv">'+c.size+'</span></div>';
+  }).join("")+'</div>';
+
+  // cluster cards
+  function mini(dist, order){
+    var total=order.reduce(function(s,o){return s+(dist[o[0]]||0);},0)||1;
+    return '<div class="bar" style="height:16px">'+order.map(function(o){
+      var v=dist[o[0]]||0, pct=v/total*100;
+      if(pct<=0) return '';
+      return '<div class="seg" style="width:'+pct.toFixed(2)+'%;background:var('+o[2]+')" title="'+esc(o[1])+' '+v+'（'+pct.toFixed(0)+'%）"></div>';
+    }).join("")+'</div>';
+  }
+  document.getElementById("clusters").innerHTML = cls.map(function(c,i){
+    return '<div class="cl"><div class="hd"><span class="rank">#'+(i+1)+'</span><span class="lab">'+esc(c.label)+'</span>'+
+      '<span class="sz">'+c.size+'件 · '+c.share+'%</span></div>'+
+      '<div class="gist">'+esc(c.gist)+'</div>'+
+      '<div class="mini"><span class="lbl">立場</span>'+mini(c.camp,CAMP)+'</div>'+
+      '<div class="mini"><span class="lbl">局面</span>'+mini(c.phase,PHASE)+'</div>'+
+      '<ul class="reps">'+ (c.reps||[]).map(function(r){return '<li>'+esc(r)+'</li>';}).join("") +'</ul>'+
+      '</div>';
+  }).join("");
+})();
+</script>
+</body>
+</html>

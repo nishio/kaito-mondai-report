@@ -1,0 +1,4 @@
+# ローカル専用（公開リポジトリには含めない）
+gen_site_data.py
+*.png
+*.html.bak
