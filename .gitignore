@@ -3,3 +3,4 @@ gen_site_data.py
 *.png
 !social/*.png
 *.html.bak
+_fonts/

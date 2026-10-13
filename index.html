@@ -330,6 +330,16 @@
   var CAMPMAP={vocaloid:"ボカロ側",neutral:"中立",takahashi:"髙橋側",media:"媒体"};
   var PHASEMAP={clash:"初期衝突",reconcile:"相互理解",reflare:"再炎上"};
   function topKey(obj, map){ var best=null,bv=-1,tot=0,k; for(k in obj){tot+=obj[k];} for(k in obj){ if(obj[k]>bv){bv=obj[k];best=k;} } return best===null?null:{label:(map[best]||best), pct: tot?Math.round(bv/tot*100):0}; }
+  // 局面は clash が全体の多数派なので「トップ」ではなく全体平均比で特徴を出す
+  function phaseSig(ph){
+    var g=D.phase||{}, gl=(g.clash||0)+(g.reconcile||0)+(g.reflare||0)||1;
+    var bR=(g.reconcile||0)/gl, bF=(g.reflare||0)/gl;
+    var t=(ph.clash||0)+(ph.reconcile||0)+(ph.reflare||0); if(!t) return "—";
+    var rc=(ph.reconcile||0)/t, rf=(ph.reflare||0)/t;
+    if(bF && rf/bF>=1.5) return '<b style="color:var(--p-reflare)">再炎上が突出</b>（再炎上 '+Math.round(rf*100)+'% ／ 全体平均 '+Math.round(bF*100)+'%）';
+    if(bR && rc/bR>=1.25) return '<b style="color:var(--p-reconcile)">和解寄り</b>（相互理解 '+Math.round(rc*100)+'% ／ 全体平均 '+Math.round(bR*100)+'%）';
+    return 'ほぼ初期衝突（和解・再炎上は平均並み以下）';
+  }
 
   (function(){
     var pts=D.points||[], svg=document.getElementById("scatter");
@@ -356,8 +366,8 @@
   }).join("");
 
   document.getElementById("clusters").innerHTML = cls.map(function(c,i){
-    var tc=topKey(c.camp,CAMPMAP), tp=topKey(c.phase,PHASEMAP);
-    var sum='主な立場: <b>'+(tc?esc(tc.label)+' '+tc.pct+'%':'—')+'</b> ／ 局面: <b>'+(tp?esc(tp.label)+' '+tp.pct+'%':'—')+'</b>';
+    var tc=topKey(c.camp,CAMPMAP);
+    var sum='主な立場: <b>'+(tc?esc(tc.label)+' '+tc.pct+'%':'—')+'</b> ／ 局面: '+phaseSig(c.phase);
     return '<div class="cl"><div class="hd"><span class="kdot kc'+i+'"></span><span class="rank">#'+(i+1)+'</span><span class="lab">'+esc(c.label)+'</span>'+
       '<span class="sz">'+c.size+'件 · '+c.share+'%</span></div>'+
       '<div class="gist">'+esc(c.gist)+'</div>'+
