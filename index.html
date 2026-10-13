@@ -138,6 +138,9 @@
   #scatter .cen text{fill:#fff; font-size:17px; font-weight:800; font-family:system-ui,sans-serif}
   #scatter .k0{fill:var(--k1)} #scatter .k1{fill:var(--k2)} #scatter .k2{fill:var(--k3)} #scatter .k3{fill:var(--k4)}
   #scatter .k4{fill:var(--k5)} #scatter .k5{fill:var(--k6)} #scatter .k6{fill:var(--k7)} #scatter .k7{fill:var(--k8)}
+  #scatter .hull{fill-opacity:.12; stroke-width:2; stroke-linejoin:round; stroke-opacity:.62}
+  #scatter .hull.k0{stroke:var(--k1)} #scatter .hull.k1{stroke:var(--k2)} #scatter .hull.k2{stroke:var(--k3)} #scatter .hull.k3{stroke:var(--k4)}
+  #scatter .hull.k4{stroke:var(--k5)} #scatter .hull.k5{stroke:var(--k6)} #scatter .hull.k6{stroke:var(--k7)} #scatter .hull.k7{stroke:var(--k8)}
   .cap{font-size:.78rem; color:var(--muted); margin:2px 2px 0}
   .klegend{display:grid; grid-template-columns:1fr 1fr; gap:7px 18px; margin:14px 0 2px; font-size:.86rem}
   .klegend span{display:inline-flex; gap:9px; align-items:baseline; color:var(--ink-2)}
@@ -344,21 +347,36 @@
   (function(){
     var pts=D.points||[], svg=document.getElementById("scatter");
     if(!svg) return;
-    var W=1000,H=640,pad=30, iw=W-2*pad, ih=H-2*pad, f="";
-    var cen=cls.map(function(){return {x:0,y:0,n:0};});
-    var px=function(x){return (pad+x/1000*iw).toFixed(1);};
-    var py=function(y){return (pad+(1-y/1000)*ih).toFixed(1);};
-    for(var i=0;i<pts.length;i++){
-      var p=pts[i], ci=p[2];
-      if(cen[ci]){cen[ci].x+=p[0];cen[ci].y+=p[1];cen[ci].n++;}
-      f+='<circle class="pt k'+ci+'" cx="'+px(p[0])+'" cy="'+py(p[1])+'" r="3.4"><title>#'+(ci+1)+' '+esc((cls[ci]||{}).label||"")+'</title></circle>';
-    }
+    var W=1000,H=640,pad=34, iw=W-2*pad, ih=H-2*pad;
+    var PX=function(x){return pad+x/1000*iw;}, PY=function(y){return pad+(1-y/1000)*ih;};
+    var groups=cls.map(function(){return [];});
+    for(var i=0;i<pts.length;i++){var p=pts[i]; if(groups[p[2]]) groups[p[2]].push([PX(p[0]),PY(p[1])]);}
+    function centroid(ps){var sx=0,sy=0;ps.forEach(function(p){sx+=p[0];sy+=p[1];});return [sx/ps.length,sy/ps.length];}
+    function core(ps,frac){ if(ps.length<=6) return ps; var c=centroid(ps);
+      var d=ps.map(function(p){return [p,(p[0]-c[0])*(p[0]-c[0])+(p[1]-c[1])*(p[1]-c[1])];});
+      d.sort(function(a,b){return a[1]-b[1];}); var keep=Math.max(5,Math.round(ps.length*frac));
+      return d.slice(0,keep).map(function(x){return x[0];}); }
+    function hull(points){ if(points.length<3) return points.slice();
+      var P=points.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});
+      var cr=function(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);};
+      var lo=[],hi=[],k;
+      for(k=0;k<P.length;k++){ while(lo.length>=2 && cr(lo[lo.length-2],lo[lo.length-1],P[k])<=0) lo.pop(); lo.push(P[k]); }
+      for(k=P.length-1;k>=0;k--){ while(hi.length>=2 && cr(hi[hi.length-2],hi[hi.length-1],P[k])<=0) hi.pop(); hi.push(P[k]); }
+      lo.pop(); hi.pop(); return lo.concat(hi); }
+    function expand(poly,c,px2){ return poly.map(function(p){var dx=p[0]-c[0],dy=p[1]-c[1],L=Math.sqrt(dx*dx+dy*dy)||1; return [p[0]+dx/L*px2, p[1]+dy/L*px2];}); }
+
+    var hullSvg="", ptSvg="", cenSvg="";
     for(var j=0;j<cls.length;j++){
-      var m=cen[j]; if(!m.n) continue;
-      var cx=px(m.x/m.n), cy=py(m.y/m.n);
-      f+='<g class="cen"><circle class="badge k'+j+'" cx="'+cx+'" cy="'+cy+'" r="15"></circle><text x="'+cx+'" y="'+(parseFloat(cy)+6).toFixed(1)+'" text-anchor="middle">'+(j+1)+'</text></g>';
+      var g=groups[j]; if(!g||!g.length) continue; var c=centroid(g);
+      var hp=expand(hull(core(g,0.80)), c, 11);
+      if(hp.length>=3){ var dd="M"+hp.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1);}).join("L")+"Z";
+        hullSvg+='<path class="hull k'+j+'" d="'+dd+'"/>'; }
     }
-    svg.innerHTML=f;
+    for(var i2=0;i2<pts.length;i2++){ var p2=pts[i2],ci=p2[2];
+      ptSvg+='<circle class="pt k'+ci+'" cx="'+PX(p2[0]).toFixed(1)+'" cy="'+PY(p2[1]).toFixed(1)+'" r="3"><title>#'+(ci+1)+' '+esc((cls[ci]||{}).label||"")+'</title></circle>'; }
+    for(var j2=0;j2<cls.length;j2++){ var g2=groups[j2]; if(!g2||!g2.length) continue; var c2=centroid(g2);
+      cenSvg+='<g class="cen"><circle class="badge k'+j2+'" cx="'+c2[0].toFixed(1)+'" cy="'+c2[1].toFixed(1)+'" r="15"></circle><text x="'+c2[0].toFixed(1)+'" y="'+(c2[1]+6).toFixed(1)+'" text-anchor="middle">'+(j2+1)+'</text></g>'; }
+    svg.innerHTML=hullSvg+ptSvg+cenSvg;
   })();
 
   document.getElementById("scatterLegend").innerHTML = cls.map(function(c,i){
