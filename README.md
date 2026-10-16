@@ -24,6 +24,16 @@
 ## ファイル
 - `index.html` — レポート本体（単一ページ）
 - `data.js` — 集計・匿名代表意見データ（クラスタ別）
+- `cards.html` — X/OGP カード生成（`?c=1..5`、1200×675）
+- `render_cards.mjs` — カードを `social/card1..5.png` に書き出すスクリプト
+- `social/card1..5.png` — OGP/Twitter カード画像
+
+## OGPカードの再生成（Chromium が動く環境で）
+```bash
+npm i puppeteer
+node render_cards.mjs    # social/card1..5.png を更新
+```
+`cards.html` の文言を変えたら再実行して PNG を更新する。
 
 ## クレジット・ライセンス
 分析ツール: 広聴AI / kouchou-ai（Digital Democracy 2030）。本レポートは公開ウェブ情報に基づく独立の分析であり、関係各社・個人の見解を代表するものではありません。コード（HTML/JS）は MIT、レポート本文・図は CC BY 4.0 とします。

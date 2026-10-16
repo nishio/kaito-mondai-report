@@ -85,13 +85,13 @@ var FOOT = '<div class="foot"><span><b>広聴AI（kouchou-ai）で分析</b> ・
 
 var cards = {
 "1": '\
-<div class="stamp">観測 as-of 2026-10-13</div>\
+<div class="stamp">観測 as-of 2026-10-16</div>\
 <div class="kicker">ブロードリスニング分析</div>\
-<h1><span class="tag">#KAITO</span> タグ被り騒動の<br>964意見を可視化する</h1>\
+<h1><span class="tag">#KAITO</span> タグ被り騒動の<br>997意見を可視化する</h1>\
 <div class="lead">2026年10月、King&amp;Prince・髙橋海人のソロ名義「KAITO」と、20年続く VOCALOID「KAITO」の <b>#KAITO</b> タグ衝突。公開ウェブ上の投稿・報道・まとめを広聴AIでクラスタリングした独立レポート。</div>\
 <div class="tiles">\
-<div class="tile"><div class="v">964</div><div class="k">収集した意見</div></div>\
-<div class="tile"><div class="v">108</div><div class="k">情報ソース</div></div>\
+<div class="tile"><div class="v">997</div><div class="k">収集した意見</div></div>\
+<div class="tile"><div class="v">114</div><div class="k">情報ソース</div></div>\
 <div class="tile"><div class="v">8</div><div class="k">主要クラスタ</div></div>\
 </div><div class="spacer"></div>' + FOOT,
 
@@ -99,30 +99,42 @@ var cards = {
 <div class="kicker">① 時系列 — 3つの局面</div>\
 <h1 class="sm">炎上は<span class="tag">一本調子</span>ではなかった</h1>\
 <div class="phases">\
-<div class="ph clash"><div class="pe">CLASH</div><div class="pt">初期衝突</div><div class="pv">571<small> 件</small></div><div class="pd">名義・タグ衝突の発覚と初期の反発</div></div>\
+<div class="ph clash"><div class="pe">CLASH</div><div class="pt">初期衝突</div><div class="pv">577<small> 件</small></div><div class="pd">名義・タグ衝突の発覚と初期の反発</div></div>\
 <div class="arr">→</div>\
-<div class="ph reconcile"><div class="pe">RECONCILE</div><div class="pt">相互理解</div><div class="pv">214<small> 件</small></div><div class="pd">「KAITOは楽器/製品」と理解し歩み寄る</div></div>\
+<div class="ph reconcile"><div class="pe">RECONCILE</div><div class="pt">相互理解</div><div class="pv">215<small> 件</small></div><div class="pd">「KAITOは楽器/製品」と理解し歩み寄る</div></div>\
 <div class="arr">→</div>\
-<div class="ph reflare"><div class="pe">REFLARE</div><div class="pt">再炎上</div><div class="pv">67<small> 件</small></div><div class="pd">過激化・事務所対応批判・低評価で再注目</div></div>\
+<div class="ph reflare"><div class="pe">REFLARE</div><div class="pt">再炎上</div><div class="pv">68<small> 件</small></div><div class="pd">過激化・事務所対応批判・低評価で再注目</div></div>\
 </div>\
-<div class="lead">和解の芽は<b>「クリプトン声明」クラスタ</b>に、再炎上は<b>「誹謗中傷・感情対立」クラスタ</b>に局在。意見内容の側からも3局面が裏づけられた（※「完全な和解」の報道はなく、ここでの相互理解は<b>芽</b>）。</div>\
+<div class="lead">和解の芽は<b>「クリプトン声明」クラスタ</b>に、再炎上は<b>「感情的対立・対応不満」クラスタ</b>に局在。さらに 10/14–16 に<b>第4局面</b>（公式タグ <b>#KAITO_SALTBOY</b> 移行 × 有料謝罪への反発＝収束と係争の並行）が立った。</div>\
 <div class="spacer"></div>' + FOOT,
 
 "3": '\
 <div class="kicker">② 論点の地図 — 広聴AIクラスタ散布図</div>\
-<h1 class="sm" style="font-size:42px">964意見を「意見の地図」に</h1>\
+<h1 class="sm" style="font-size:42px">997意見を「意見の地図」に</h1>\
 <div class="scat"><svg id="scat" viewBox="0 0 1000 392" preserveAspectRatio="xMidYMid meet"></svg></div>\
-<div class="capline">近い点ほど似た意見・8クラスタに色分け　／　重心は <b class="gd">タグ/検索の混在 約38%</b> ＞ <b class="hl">命名の是非 約33%</b></div>\
+<div class="capline">近い点ほど似た意見・8クラスタに色分け　／　重心は <b class="gd">タグ/検索の混在 約39%</b> ＞ <b class="hl">命名の是非 約30%</b>（最大の単一クラスタは感情・対応 23%）</div>\
 <div class="spacer"></div>' + FOOT,
 
 "4": '\
-<div class="kicker w">③ ファクトチェック</div>\
-<h1 class="sm">「低評価は<span class="tag">海外ファン</span>由来」説<br>→ <span class="hl">支持する証拠なし</span></h1>\
+<div class="kicker w">③ ファクトチェック（データ編）</div>\
+<h1 class="sm">よく見る説を<br>データで<span class="hl">判定</span>する</h1>\
 <div class="bul">\
-<div class="b"><span class="ic">!</span><div>曲名「swim?」と BTS『SWIM』の一致は<b>偶然</b>。ARMY の反発・盗作主張を報じた資料は日英韓いずれも不在</div></div>\
-<div class="b"><span class="ic">!</span><div>King&amp;Prince / 歌手Prince ファン関与の証拠は<b>ゼロ</b>。むしろ韓国の K&amp;P ファンは<b>好意的</b>（仮説と逆）</div></div>\
-<div class="b"><span class="ic">!</span><div>YouTubeは2021年に公開dislikeを非表示化。「57万低評価」は単一媒体の未検証値で、<b>投票者の地域内訳は原理的に観測不可</b></div></div>\
+<div class="b"><span class="ic" style="background:var(--warn)">△</span><div>「ボカロファンが“界隈ぐるみ”で殺害予告」→ <b>誇張</b>。明らかな予告は<b>3〜4件・捨て垢</b>、拡散したのは報告側（最大<b>約230万表示</b>）</div></div>\
+<div class="b"><span class="ic" style="background:#e4574f">✕</span><div>「海外ARMYが盗作で低評価」→ <b>裏付けなし</b>。MVコメント<b>1,340件</b>中BTS/盗作の言及は<b>各1件</b>・<b>98%が日本語</b></div></div>\
+<div class="b"><span class="ic" style="background:var(--muted)">?</span><div>「一部の執拗／組織的アカウントが主導」→ <b>確認されず</b>。炎上は<b>広く薄い多数</b>で、組織的botの兆候なし</div></div>\
 </div>\
+<div class="capline" style="margin-top:22px">△ 誇張・一面的　／　✕ 裏付けなし　／　? 確認されず　・ 断定でなく観測範囲での判定</div>\
+<div class="spacer"></div>' + FOOT,
+
+"5": '\
+<div class="kicker w">炎上の増幅メカニズム</div>\
+<h1 class="sm">少数の投稿が<br>「社会的スケール」になるまで</h1>\
+<div class="big" style="margin-top:30px"><span class="gd">数十表示</span><span class="vs">の予告が</span><span class="hl">約230万表示</span><span class="vs">の「報告」へ</span></div>\
+<div class="bul" style="margin-top:22px">\
+<div class="b"><span class="ic" style="background:var(--warn)">1</span><div>拡散したのは脅迫そのものではなく、「殺害予告が出てる／通報を」という<b>報告</b>の方（最大 約230万表示）</div></div>\
+<div class="b"><span class="ic" style="background:var(--warn)">2</span><div>週刊女性PRIME系の見出しは局面ごとに「過激な殺害予告」「謎対応」「誠意がない」と<b>一貫して最も扇情的な枠</b>を選んだ</div></div>\
+</div>\
+<div class="capline" style="margin-top:20px">※ 捏造ではないが「増幅」。脅迫は少数でも実在。断定でなく観測範囲での評価。</div>\
 <div class="spacer"></div>' + FOOT,
 };
 
