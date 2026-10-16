@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KAITO問題 ブロードリスニング分析</title>
-<meta name="description" content="2026年10月の「#KAITO タグ被り騒動」をめぐる964件のネット上の意見を、広聴AI(kouchou-ai)でクラスタリングした公開ブロードリスニング分析。匿名化・両論併記。">
+<meta name="description" content="2026年10月の「#KAITO タグ被り騒動」をめぐる997件のネット上の意見を広聴AI(kouchou-ai)でクラスタリングし、MVコメント1340件やX調査で“海外ファン由来”説などをファクトチェックした公開ブロードリスニング分析。匿名化・両論併記。観測 as-of 2026-10-16。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="KAITO問題 ブロードリスニング分析">
-<meta property="og:description" content="#KAITO タグ被り騒動の964意見を広聴AIでクラスタリング。時系列3局面・8クラスタ散布図・海外ファン低評価説の検証。匿名化・両論併記。">
+<meta property="og:description" content="#KAITO タグ被り騒動の997意見を広聴AIでクラスタリング。4局面・8クラスタ散布図・MVコメント1340件・“海外ファン低評価”説のファクトチェック。匿名化・両論併記。">
 <meta property="og:url" content="https://nishio.github.io/kaito-mondai-report/">
 <meta property="og:image" content="https://nishio.github.io/kaito-mondai-report/social/card1.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="KAITO問題 ブロードリスニング分析">
-<meta name="twitter:description" content="#KAITO タグ被り騒動の964意見を広聴AIで可視化。時系列3局面・8クラスタ散布図・海外ファン低評価説の検証。">
+<meta name="twitter:description" content="#KAITO タグ被り騒動の997意見を広聴AIで可視化。MVコメント1340件とX調査で“海外ファン由来”説をファクトチェック。匿名化・両論併記。">
 <meta name="twitter:image" content="https://nishio.github.io/kaito-mondai-report/social/card1.png">
 <style>
   :root{
@@ -27,7 +27,7 @@
     --p-clash:#2a78d6; --p-reconcile:#1baf7a; --p-reflare:#eb6834;
     /* 8 cluster hues (categorical slots 1-8) */
     --k1:#2a78d6; --k2:#eb6834; --k3:#1baf7a; --k4:#eda100; --k5:#e87ba4; --k6:#008300; --k7:#6250d6; --k8:#e34948;
-    --good:#006300; --warn:#b9770c;
+    --good:#006300; --warn:#b9770c; --bad:#c62828;
     --maxw:880px;
   }
   @media (prefers-color-scheme: dark){
@@ -40,7 +40,7 @@
       --c-vocaloid:#3987e5; --c-neutral:#199e70; --c-takahashi:#d95926; --c-media:#c98500;
       --p-clash:#3987e5; --p-reconcile:#199e70; --p-reflare:#d95926;
       --k1:#3987e5; --k2:#d95926; --k3:#199e70; --k4:#c98500; --k5:#d55181; --k6:#008300; --k7:#9085e9; --k8:#e66767;
-      --good:#0ca30c; --warn:#fab219;
+      --good:#0ca30c; --warn:#fab219; --bad:#ef5350;
     }
   }
   :root[data-theme="dark"]{
@@ -162,6 +162,24 @@
   .cols ul{margin:0; padding-left:1.1em; font-size:.86rem; color:var(--ink-2)}
   .cols li{margin:.25em 0}
   .for h4{color:var(--good)} .against h4{color:var(--warn)}
+  /* fact-check cards */
+  .fclegend{display:flex; flex-wrap:wrap; gap:9px 16px; font-size:.78rem; color:var(--ink-2); margin:10px 0 4px}
+  .fclegend b{color:var(--ink)}
+  .fcwrap{display:grid; gap:12px; margin-top:6px}
+  .fc{display:grid; grid-template-columns:78px 1fr; gap:16px; background:var(--surface);
+    border:1px solid var(--border); border-radius:14px; padding:16px 18px}
+  .fc .vb{display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center}
+  .fc .badge2{width:52px; height:52px; border-radius:13px; display:grid; place-items:center; font-weight:900; font-size:27px; line-height:1}
+  .fc .vlab{font-size:.72rem; font-weight:800; line-height:1.25}
+  .fc.warn .badge2{background:color-mix(in srgb,var(--warn) 15%,transparent); color:var(--warn); box-shadow:0 0 0 1.5px color-mix(in srgb,var(--warn) 42%,transparent) inset}
+  .fc.bad .badge2{background:color-mix(in srgb,var(--bad) 15%,transparent); color:var(--bad); box-shadow:0 0 0 1.5px color-mix(in srgb,var(--bad) 42%,transparent) inset}
+  .fc.unk .badge2{background:var(--surface-2); color:var(--muted); box-shadow:0 0 0 1.5px var(--border) inset}
+  .fc.warn .vlab{color:var(--warn)} .fc.bad .vlab{color:var(--bad)} .fc.unk .vlab{color:var(--muted)}
+  .fc .claim2{font-weight:800; font-size:1.02rem; margin:.1em 0 .4em; line-height:1.4}
+  .fc .claim2 .q{display:block; font-size:.72rem; color:var(--muted); font-weight:700; margin-bottom:2px}
+  .fc .evi2{font-size:.9rem; color:var(--ink-2); margin:0}
+  .fc .evi2 b{color:var(--ink)}
+  .fc .cav{font-size:.78rem; color:var(--muted); margin:.55em 0 0; padding-left:11px; border-left:2px solid var(--border)}
   /* method */
   dl.meta{display:grid; grid-template-columns:auto 1fr; gap:4px 16px; font-size:.9rem; margin:.4em 0}
   dl.meta dt{color:var(--muted); font-weight:700} dl.meta dd{margin:0; color:var(--ink-2)}
@@ -182,8 +200,8 @@
       <button class="toggle" id="themeBtn" aria-label="テーマ切替">◐ テーマ</button>
     </div>
     <div class="hero">
-      <span class="asof" id="asof">観測 as-of 2026-10-13</span>
-      <h1>#KAITO タグ被り騒動の<br>964意見を可視化する</h1>
+      <span class="asof" id="asof">観測 as-of 2026-10-16</span>
+      <h1>#KAITO タグ被り騒動の<br>997意見を可視化する</h1>
       <p class="sub">2026年10月、King&nbsp;&amp;&nbsp;Prince・髙橋海人のソロ名義「KAITO」と、20年続くVOCALOID「KAITO」の <code>#KAITO</code> タグ衝突。公開ウェブ上の投稿・報道・まとめ <b id="nsrc">108</b> ソースから集めた意見を、広聴AI（kouchou-ai）でクラスタリングした独立レポート。</p>
       <div class="tiles" id="tiles"></div>
     </div>
@@ -208,18 +226,19 @@
   </section>
 
   <section>
-    <h2><span class="n">02</span>時系列 — 3つの局面</h2>
-    <p class="lede">炎上は一本調子ではなく、<b>初期衝突 → 一旦の相互理解 → 再炎上</b> と局面が変化した。各意見に付与した局面タグの分布（下）でも、和解の芽（reconcile）が無視できない厚みで存在し、その後に再炎上（reflare）が立ち上がる構造が見える。</p>
+    <h2><span class="n">02</span>時系列 — 局面の変化</h2>
+    <p class="lede">炎上は一本調子ではなく、<b>初期衝突 → 一旦の相互理解 → 再炎上</b> と局面が変化し、さらに 10/14–16 に <b>第4局面</b> が立った。各意見に付与した局面タグの分布（下の3局面）でも、和解の芽（reconcile）が無視できない厚みで存在し、その後に再炎上（reflare）が立ち上がる構造が見える。</p>
     <div class="phaseband" id="phaseBand"></div>
-    <p class="lede" style="font-size:.9rem;color:var(--ink-2)">※ クラスタ分析では、<b>和解の芽は「クリプトン声明」クラスタに、再炎上は「誹謗中傷・感情対立」クラスタに局在</b>しており、この3局面を意見内容の側からも裏づける。なお「完全な和解」の報道はなく、ここでの reconcile は <i>相互理解の芽</i> を指す。</p>
+    <p class="lede" style="font-size:.9rem;color:var(--ink-2)">※ クラスタ分析では、<b>和解の芽は「クリプトン声明」クラスタに、再炎上は「感情的対立・対応不満」クラスタに局在</b>しており、この3局面を意見内容の側からも裏づける。なお「完全な和解」の報道はなく、ここでの reconcile は <i>相互理解の芽</i> を指す。</p>
+    <div class="note"><b>第4局面（10/14–16）＝収束と係争の並行。</b> 10/15 にレーベルが新タグ <code>#KAITO_SALTBOY</code> への移行を公式に呼びかけ、本人も有料ブログで謝罪。実質論点（タグ）は公式解で<b>収束方向</b>（タグ移行の意見は「タグ/検索」クラスタに着地）。一方で「<b>有料の場での謝罪は誠意がない</b>」という反発が新論点として広がり（「感情的対立・対応不満」クラスタに局在）、対立のエネルギーは<b>実質論点から感情・メタ層へ移動</b>している。</div>
   </section>
 
   <section>
     <h2><span class="n">03</span>論点の地図 — 広聴AIクラスタ散布図</h2>
-    <p class="lede">964意見を多言語埋め込みで数値化し、UMAP で2次元に配置、意味の近い意見どうしが集まるように8クラスタへ色分けした（広聴AIの代表的な「意見の地図」）。<b>近い点ほど似た意見</b>、番号は各クラスタの中心。論点の重心は「名前そのもの」ではなく <b>タグ/検索の混在（約38%）</b>、次いで <b>命名の是非（約33%）</b>。</p>
+    <p class="lede">997意見を多言語埋め込みで数値化し、UMAP で2次元に配置、意味の近い意見どうしが集まるように8クラスタへ色分けした（広聴AIの代表的な「意見の地図」）。<b>近い点ほど似た意見</b>、番号は各クラスタの中心。論点の重心は「名前そのもの」ではなく <b>タグ/検索の混在（約39%）</b>、次いで <b>命名の是非（約30%）</b>（10-13版の38%／33%をほぼ再確認）。一方で<b>最大の単一クラスタは「感情的対立・対応への不満」(23%)</b> に移り、再炎上と“有料謝罪への反発”がここに集中する。</p>
     <figure class="scatterwrap" style="margin-block-end:0">
-      <svg id="scatter" viewBox="0 0 1000 640" role="img" aria-label="964意見のUMAP散布図。8クラスタに色分け、番号は各クラスタ中心"></svg>
-      <figcaption class="cap">1点＝1意見（964点）。点にカーソルを合わせると所属クラスタを表示。個別の意見本文は公開していません。</figcaption>
+      <svg id="scatter" viewBox="0 0 1000 640" role="img" aria-label="997意見のUMAP散布図。8クラスタに色分け、番号は各クラスタ中心"></svg>
+      <figcaption class="cap">1点＝1意見（997点）。点にカーソルを合わせると所属クラスタを表示。個別の意見本文は公開していません。</figcaption>
     </figure>
     <div class="klegend" id="scatterLegend"></div>
     <h3 style="margin-top:1.9em">各クラスタの中身（代表意見）</h3>
@@ -227,33 +246,68 @@
   </section>
 
   <section>
-    <h2><span class="n">04</span>検証 — 「低評価は海外ファン由来」説</h2>
-    <p class="lede">MV「swim?」のYouTube低評価について、「海外の King&amp;Prince（"Prince"）ファンや BTS ファンの不興が原因では」という仮説を、日英韓＋Reddit の多言語で検証した。</p>
+    <h2><span class="n">04</span>ファクトチェック — よく見る説をデータで判定</h2>
+    <p class="lede">SNSで広く語られた説を、収集データ（意見クラスタリング・MVコメント・X調査）で評価した。断定ではなく <b>「観測できた範囲での判定」</b>。</p>
+    <div class="fclegend">
+      <span><b>△ 誇張・一面的</b> 事実の核はあるが規模や主語が誇張</span>
+      <span><b>✕ 裏付けなし</b> 観測範囲で根拠がほぼ無い</span>
+      <span><b>? 確認されず</b> そう言える証拠が観測できない</span>
+    </div>
+    <div class="fcwrap">
+      <div class="fc warn">
+        <div class="vb"><span class="badge2">△</span><span class="vlab">誇張・<br>ミスリード</span></div>
+        <div>
+          <p class="claim2"><span class="q">よく聞く説</span>「ボカロファンが“界隈ぐるみ”で殺害予告をした」</p>
+          <p class="evi2">独立した2つの調査で、明らかな殺害予告は <b>3〜4件・各数十表示</b>。投稿者は<b>騒動前に作られたフォロワー0の捨て垢</b>で、ボカロ界隈との関係は確認できない。大きく拡散したのは予告ではなく「予告が出ている／通報を」という <b>報告（最大 約230万表示）</b>。</p>
+          <p class="cav">※ 実際の脅迫は（少数でも）存在した。「無かった」ではなく“界隈ぐるみ”という規模が誇張。文面・IDは不掲載。</p>
+        </div>
+      </div>
+      <div class="fc bad">
+        <div class="vb"><span class="badge2">✕</span><span class="vlab">裏付け<br>なし</span></div>
+        <div>
+          <p class="claim2"><span class="q">よく聞く説</span>「海外のBTSファン（ARMY）が盗作だと叩いて低評価している」</p>
+          <p class="evi2">MV「swim?」のコメント <b>1,340件</b>のうち、BTS・盗作への言及は <b>各1件のみ</b>。コメントの <b>98%が日本語</b>で、多言語のX検索でもARMYの攻撃は観測されず。観測できる海外ファンはむしろ <b>支持的</b>。</p>
+          <p class="cav">※ 低評価を押した人は匿名で内訳は観測不可。“海外が叩いた”証拠が無い、まで。</p>
+        </div>
+      </div>
+      <div class="fc unk">
+        <div class="vb"><span class="badge2">?</span><span class="vlab">確認<br>されず</span></div>
+        <div>
+          <p class="claim2"><span class="q">よく聞く説</span>「炎上は一部の執拗な／組織的なアカウントが主導している」</p>
+          <p class="evi2">著者単位で見ると、炎上は特定の大口ではなく <b>「広く薄い多数」</b>。複数スレッドを跨いで同じ主張を執拗に繰り返すアカウントや、組織的botの支配的な兆候は <b>観測されない</b>。高頻度の投稿者はむしろ仲裁・応援側。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">05</span>深掘り — 「低評価は海外ファン由来」説</h2>
+    <p class="lede">上のファクトチェック②を、MVコメントとX多言語検索で詳しく見る。MV「swim?」の低評価について「海外の King&amp;Prince（"Prince"）ファンや BTS ファンの不興が原因では」という仮説を検証した。<b>swim? MVのコメント1,340件のうち98%が日本語、BTS・盗作への言及は各1件</b>のみで、海外からの攻撃は観測されない。</p>
     <div class="verdict">
       <span class="tag">結論: 支持する証拠なし（unsupported）</span>
-      <p style="margin:.3em 0">全9角度を通して、低評価が海外の King&amp;Prince / 歌手Prince / BTS ファン由来であることを示す一次・二次の証拠は<b>見つからなかった</b>。報道で一貫して反発の主体とされるのは<b>国内のボカロ KAITO ファン</b>（名義・<code>#KAITO</code> 衝突）＋「低評価でおすすめ除外できる」という国内SNS言説への追随。ただし投票者の地域内訳は原理的に観測不可のため、<b>積極的な否定</b>まではできない。</p>
+      <p style="margin:.3em 0">当初は公開ウェブの多言語検索で「不在」を確認する段階だったが、その後 <b>swim? MVのコメント1,340件</b>（98%が日本語・BTS/盗作の言及は各1件）と <b>Grok によるX多言語検索</b> という直接データが加わり、「海外の King&amp;Prince / 歌手Prince / BTS ファン由来」を示す証拠は<b>やはり見つからなかった</b>。反発の主体として一貫して観測されるのは<b>国内のボカロ KAITO ファン</b>（名義・<code>#KAITO</code> 衝突）。ただし低評価を押した人の内訳は匿名で原理的に観測不可のため、<b>積極的な否定</b>まではしない。</p>
       <div class="cols">
         <div class="for"><h4>補足される事実</h4><ul>
+          <li>swim? MVコメント1,340件中、BTS・盗作の言及は<b>各1件</b>・攻撃コメントは<b>0件</b>（98%が日本語）</li>
           <li>曲名「swim?」と BTS『SWIM』の一致は<b>偶然</b>（一致自体は反発の証拠にならない）</li>
-          <li>国内SNSで「低評価でおすすめ除外」言説が拡散</li>
         </ul></div>
         <div class="against"><h4>仮説に反する/未確認</h4><ul>
-          <li>ARMY や Prince ファンの反発を報じた資料は日英韓いずれも不在</li>
-          <li>韓国の King&amp;Prince ファンはむしろ<b>好意的</b>（仮説と逆）</li>
-          <li>YouTubeは2021年に公開dislikeを非表示化。「57万」は単一媒体の未検証値</li>
+          <li>多言語X検索でも ARMY による盗作・攻撃投稿は<b>観測されず</b>。観測できる海外ファンはむしろ<b>支持的</b></li>
+          <li>韓国の King&amp;Prince ファンもむしろ<b>好意的</b>（仮説と逆）</li>
+          <li>YouTubeは2021年に公開dislikeを非表示化。「57万」は単一媒体の未検証値で内訳不明</li>
         </ul></div>
       </div>
     </div>
   </section>
 
   <section>
-    <h2><span class="n">05</span>手法・限界・倫理</h2>
+    <h2><span class="n">06</span>手法・限界・倫理</h2>
     <dl class="meta">
-      <dt>収集</dt><dd>2026-10-13 時点。108ソース（報道 / まとめ / Q&amp;A / 掲示板 / note / 百科 / 海外翻訳まとめ 等）から 964意見を匿名化・日本語要約。</dd>
-      <dt>分析</dt><dd>広聴AI（kouchou-ai）analysis-core 0.1.3。ローカル多言語埋め込み（paraphrase-multilingual-mpnet）＋ UMAP ＋ Ward 階層クラスタリング（8/24/72の3層）。外部LLM APIキー不使用。</dd>
+      <dt>収集</dt><dd>観測 as-of 2026-10-16。114ソース（報道 / まとめ / Q&amp;A / 掲示板 / note / 百科 / 海外翻訳まとめ 等）から 997意見を匿名化・日本語要約。加えて <b>swim? 公式MVのコメント 1,340件</b> と <b>X 調査2系統</b>（個人による実地調査＋Grok の X 検索）を観測データとして併用。</dd>
+      <dt>分析</dt><dd>広聴AI（kouchou-ai）analysis-core 0.1.3。ローカル多言語埋め込み（paraphrase-multilingual-mpnet）＋ UMAP ＋ Ward 階層クラスタリング（8/24/72の3層）。外部LLM APIキー不使用。MVコメントは言語を文字種で推定・集計。</dd>
       <dt>ラベル</dt><dd>クラスタ名は各クラスタの代表意見（中心近傍）を読んで人手で付与（LLMによる自動命名は未使用）。</dd>
-      <dt>限界</dt><dd>収集源は偏りを持つ二次情報を含み、実際のSNS母集団の縮図ではない。乱数シード未固定でクラスタ番号は再実行で変動しうる。代表性のある調査ではない。</dd>
-      <dt>倫理</dt><dd>脅迫・殺害予告・誹謗中傷の文面、私人の氏名・アカウントIDは<b>一切掲載しない</b>。公人・公式・権利元の公開済み発信のみ出典とする。</dd>
+      <dt>限界</dt><dd>収集源・MVコメント・X検索はいずれも公開情報の<b>観測サンプル</b>で、実際のSNS母集団の縮図ではない（全件網羅でもない）。乱数シード未固定でクラスタ番号は再実行で変動しうる。代表性のある世論調査ではない。</dd>
+      <dt>倫理</dt><dd>脅迫・殺害予告・誹謗中傷の文面、私人の氏名・アカウントIDは<b>一切掲載しない</b>。著者単位の分析も、本公開レポートでは<b>集計・パターン</b>としてのみ記述する。公人・公式・権利元の公開済み発信のみ出典とする。</dd>
     </dl>
   </section>
 
@@ -262,7 +316,7 @@
 <footer>
   <div class="wrap">
     <p>分析ツール: <a href="https://github.com/digitaldemocracy2030/kouchou-ai">広聴AI / kouchou-ai</a>（Digital Democracy 2030）。本レポートは公開ウェブ情報に基づく独立の分析であり、関係各社・個人の見解を代表するものではありません。</p>
-    <p id="genline">観測 as-of 2026-10-13 ／ 匿名化・両論併記・集計のみ公開。</p>
+    <p id="genline">観測 as-of 2026-10-16 ／ 匿名化・両論併記・集計のみ公開。</p>
   </div>
 </footer>
 
