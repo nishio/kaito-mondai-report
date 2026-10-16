@@ -12,7 +12,15 @@ const site = 'file://' + join(here, 'cards.html');
 const out = join(here, 'social');
 const CARDS = [1, 2, 3, 4, 5];
 
-const browser = await puppeteer.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+// 既存の Google Chrome を使う（puppeteer 同梱 Chrome の DL 不要）。
+// PUPPETEER_EXECUTABLE_PATH があればそれを優先、無ければ 'chrome' チャンネル。
+const launchOpts = { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
+if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+  launchOpts.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+} else {
+  launchOpts.channel = 'chrome';
+}
+const browser = await puppeteer.launch(launchOpts);
 const page = await browser.newPage();
 await page.setViewport({ width: 1200, height: 675, deviceScaleFactor: 2 });
 for (const c of CARDS) {
